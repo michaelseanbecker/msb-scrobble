@@ -8,15 +8,27 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 console.log("Add new movie view!")
 
 Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+  console.log("Request received");
+  // Parse the multipart form data
+  
+  const reqBody = await req.formData();
+  for (const pair of reqBody.entries()) {
+    const field = pair[0], val = pair[1];
+    console.log("FIELD =>", field);
+    if (val instanceof File) {
+      console.log("FILE =>", field, val);
+    } else {
+      const data = JSON.parse(val);
+      console.log("DATA =>", data.event);
+    }
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
+  return new Response(null, { status: 201 });
+  // Process the form data
+  // console.log("Plex Webhook Event:", formData);
+  // return new Response(
+  //   JSON.stringify(data),
+  //   { headers: { "Content-Type": "application/json" } },
+  // )
 })
 
 /* To invoke locally:
